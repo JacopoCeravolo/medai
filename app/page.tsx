@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,20 +11,71 @@ import { Label } from "@/components/ui/label";
 export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert(`Hello ${name}! Form submitted with email: ${email}`);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-            Next.js + shadcn/ui
-          </h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+              Next.js + shadcn/ui
+            </h1>
+            <div className="flex gap-2">
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Welcome, {user.firstName} {user.lastName}!
+                  </span>
+                  <Button onClick={handleLogout} variant="outline">
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Link href="/login">
+                    <Button variant="outline">Login</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button>Sign Up</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-lg text-slate-600 dark:text-slate-400">
             A beautiful, modern web application built with Next.js and shadcn/ui components
           </p>
