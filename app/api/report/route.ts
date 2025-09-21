@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
           patient_name: docName,
           patient_info: informazioni,
           notes: note,
-          data: new Date().toISOString(),
+          date: new Date().toISOString(),
         });
 
         // Generate content using Gemini
