@@ -78,7 +78,7 @@ export default function Home() {
 
           <ResizablePanel defaultSize={50} minSize={30}>
             <DocumentPanel
-              showHistoryControls={true}
+              showHistoryControls={!isHistoryVisible}
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
               isNewDocument={true}
@@ -99,7 +99,7 @@ export default function Home() {
         >
           <ResizablePanel defaultSize={70} minSize={50}>
             <DocumentPanel
-              showHistoryControls={true}
+              showHistoryControls={!isHistoryVisible}
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
               isNewDocument={true}

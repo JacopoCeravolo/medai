@@ -17,6 +17,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
+import { setIsHistoryVisible } from "@/lib/store/uiSlice";
 
 export default function ReportPage() {
   const router = useRouter();
@@ -28,6 +29,11 @@ export default function ReportPage() {
   const { currentReport, isLoading, error } = useAppSelector(
     (state) => state.report
   );
+  const { isHistoryVisible } = useAppSelector((state) => state.ui);
+
+  const toggleHistory = () => {
+    dispatch(setIsHistoryVisible(!isHistoryVisible));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -122,20 +128,67 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="h-screen flex">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={20} minSize={15}>
-          <HistoryPanel onNewDocument={handleNewDocument} />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <DocumentPanel report={currentReport} isLoading={isLoading} />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={30} minSize={20}>
-          <EditPanel report={currentReport} />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="h-screen bg-white">
+      {isHistoryVisible ? (
+        <ResizablePanelGroup
+          key="three-panel"
+          direction="horizontal"
+          className="h-full"
+        >
+          <ResizablePanel
+            defaultSize={20}
+            minSize={15}
+            maxSize={40}
+            collapsible={true}
+            onCollapse={() => setIsHistoryVisible(false)}
+          >
+            <HistoryPanel
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <DocumentPanel
+              showHistoryControls={!isHistoryVisible}
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+              isLoading={isLoading}
+              report={currentReport}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={30} minSize={25}>
+            <EditPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <ResizablePanelGroup
+          key="two-panel"
+          direction="horizontal"
+          className="h-full"
+        >
+          <ResizablePanel defaultSize={70} minSize={50}>
+            <DocumentPanel
+              showHistoryControls={!isHistoryVisible}
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+              isLoading={isLoading}
+              report={currentReport}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={30} minSize={25}>
+            <EditPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )}
     </div>
   );
 }
