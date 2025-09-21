@@ -74,18 +74,35 @@ export async function POST(request: NextRequest) {
 
     // Verify blob is accessible before proceeding with database save
     // This ensures the content is available when React Query refetches
-    try {
-      const verifyResponse = await fetch(blobUrl);
-      if (!verifyResponse.ok) {
-        throw new Error('Blob not yet accessible');
+    const verifyBlob = async (url: string, retries = 3, delay = 100): Promise<boolean> => {
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Check if we got a valid response
+        const content = await response.text();
+        if (content.length > 0) {
+          return true;
+        }
+        
+        throw new Error('Empty blob content');
+      } catch (error) {
+        if (retries === 0) {
+          console.error('Failed to verify blob after retries:', error);
+          return false;
+        }
+        
+        console.log(`Retrying blob verification (${retries} attempts left)...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return verifyBlob(url, retries - 1, delay * 2);
       }
-    } catch (error) {
-      // If blob is not immediately accessible, wait a moment and try again
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const retryResponse = await fetch(blobUrl);
-      if (!retryResponse.ok) {
-        throw new Error('Failed to verify blob accessibility');
-      }
+    };
+    
+    const isBlobAccessible = await verifyBlob(blobUrl);
+    if (!isBlobAccessible) {
+      throw new Error('Failed to verify blob accessibility after retries');
     }
 
     // Now save report to database - blob content is guaranteed to be available
