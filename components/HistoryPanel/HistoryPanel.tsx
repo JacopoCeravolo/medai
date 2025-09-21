@@ -9,11 +9,13 @@ import { useReports } from "@/lib/services/reportService";
 interface HistoryPanelProps {
   onToggleHistory?: () => void;
   onNewDocument?: () => void;
+  currentDocumentId?: string;
 }
 
 export function HistoryPanel({
   onToggleHistory,
   onNewDocument,
+  currentDocumentId,
 }: HistoryPanelProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -56,25 +58,42 @@ export function HistoryPanel({
           </div>
         ) : (
           <div className="space-y-1">
-            {reports.map((report) => (
-              <button
-                key={report.id}
-                onClick={() => handleReportClick(report.id)}
-                className="w-full p-3 text-left rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors group"
-              >
-                <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-gray-400 mt-0.5 group-hover:text-gray-600" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-gray-900 truncate">
-                      {report.title}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {new Date(report.createdAt).toLocaleDateString()}
+            {reports.map((report) => {
+              const isSelected = currentDocumentId === report.id;
+              return (
+                <button
+                  key={report.id}
+                  onClick={() => handleReportClick(report.id)}
+                  className={`w-full p-3 text-left rounded-lg transition-colors group ${
+                    isSelected
+                      ? "bg-blue-50 border border-blue-200 text-blue-900"
+                      : "hover:bg-gray-50 border border-transparent hover:border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <FileText 
+                      className={`h-4 w-4 mt-0.5 ${
+                        isSelected 
+                          ? "text-blue-600" 
+                          : "text-gray-400 group-hover:text-gray-600"
+                      }`} 
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-medium text-sm truncate ${
+                        isSelected ? "text-blue-900" : "text-gray-900"
+                      }`}>
+                        {report.title}
+                      </div>
+                      <div className={`text-xs mt-1 ${
+                        isSelected ? "text-blue-700" : "text-gray-500"
+                      }`}>
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

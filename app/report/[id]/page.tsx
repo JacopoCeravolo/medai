@@ -74,6 +74,7 @@ export default function ReportPage() {
             <HistoryPanel
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
+              currentDocumentId={reportId}
             />
           </ResizablePanel>
 

@@ -71,6 +71,7 @@ export default function Home() {
             <HistoryPanel
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
+              currentDocumentId={undefined}
             />
           </ResizablePanel>
 
