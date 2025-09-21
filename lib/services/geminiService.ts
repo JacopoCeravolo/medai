@@ -43,8 +43,6 @@ export async function generateContent(
 }
 
 export async function generateReportContent(
-  patientInfo: string,
-  notes: string,
   promptTemplate: any
 ): Promise<string> {
   try {

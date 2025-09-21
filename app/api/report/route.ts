@@ -46,14 +46,14 @@ export async function POST(request: NextRequest) {
       try {
         // Get prompt template from Langfuse
         const promptTemplate = await getPromptTemplate("generazione-referto", {
+          patient_name: docName,
           patient_info: informazioni,
-          notes: note
+          notes: note,
+          data: new Date().toISOString(),
         });
 
         // Generate content using Gemini
         const generatedContent = await generateReportContent(
-          informazioni,
-          note,
           promptTemplate
         );
 

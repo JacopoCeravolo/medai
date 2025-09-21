@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
-import { useCreateReport, useReport } from "@/lib/services/reportService";
+import {
+  useCreateReport,
+  useReport,
+  useUpdateReportContent,
+} from "@/lib/services/reportService";
 import { setIsAiGenerating } from "@/lib/store/uiSlice";
 
 type ReportType = "REFERTO" | "NOTA" | "CHIRURGIA";
@@ -32,6 +36,7 @@ export function EditPanel({
   const { currentReportId } = useAppSelector((state) => state.report);
 
   const createReportMutation = useCreateReport();
+  const updateReportMutation = useUpdateReportContent();
 
   // Fetch report data if we have a current report ID and it's not a new document
   const { data: report } = useReport(currentReportId || "");
@@ -92,6 +97,32 @@ export function EditPanel({
       dispatch(setIsAiGenerating(false));
     }
   };
+
+  /* const handleEdit = async () => {
+    if (!informazioni.trim() && !note.trim()) {
+      alert("Please enter some content before saving.");
+      return;
+    }
+
+    if (!token) {
+      alert("You must be logged in to save documents.");
+      return;
+    }
+
+    try {
+      await updateReportMutation.mutateAsync({
+        id: currentReportId || "",
+        content: note,
+        reportType: reportType,
+        docName: docName,
+        informazioni: informazioni,
+        note: note,
+      });
+    } catch (error) {
+      console.error("Error updating report:", error);
+      throw error; // Re-throw to handle in the UI if needed
+    }
+  }; */
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -197,14 +228,12 @@ export function EditPanel({
             <div className="pt-2">
               <Button
                 onClick={handleSave}
-                disabled={createReportMutation.isPending}
+                disabled={createReportMutation.isPending || !isNewDocument}
                 className="w-full bg-black text-white hover:bg-gray-800 disabled:opacity-50"
               >
                 {createReportMutation.isPending
                   ? "Salvando..."
-                  : isNewDocument
-                  ? "Genera Referto"
-                  : "Modifica Referto"}
+                  : "Genera Referto"}
               </Button>
             </div>
           </div>

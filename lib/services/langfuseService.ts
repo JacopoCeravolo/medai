@@ -21,6 +21,7 @@ export async function getPromptTemplate(
   try {
     // Get the prompt template from Langfuse
     const prompt = await langfuse.prompt.get(promptName, {
+      label: "latest",
       type: "chat",
     }); 
     

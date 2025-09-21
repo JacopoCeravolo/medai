@@ -38,9 +38,6 @@ export function DocumentPanel({
         await updateReportMutation.mutateAsync({
           id: report.id,
           content: editedContent,
-          reportType: report.reportType || "REFERTO",
-          docName: report.docName || "",
-          informazioni: report.informazioni || "",
         });
         setIsEditing(false);
       } catch (error) {
