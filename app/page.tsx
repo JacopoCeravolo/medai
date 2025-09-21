@@ -19,7 +19,9 @@ export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.user);
-  const { isHistoryVisible, isAiGenerating } = useAppSelector((state) => state.ui);
+  const { isHistoryVisible, isAiGenerating } = useAppSelector(
+    (state) => state.ui
+  );
 
   useEffect(() => {
     // Initialize auth from localStorage on app start
@@ -67,7 +69,8 @@ export default function Home() {
             minSize={15}
             maxSize={40}
             collapsible={true}
-            onCollapse={() => setIsHistoryVisible(false)}
+            onCollapse={() => dispatch(setIsHistoryVisible(false))}
+            onExpand={() => dispatch(setIsHistoryVisible(true))}
           >
             <HistoryPanel
               onToggleHistory={toggleHistory}
@@ -115,10 +118,10 @@ export default function Home() {
           </ResizablePanel>
         </ResizablePanelGroup>
       )}
-      
+
       {/* Global Loading Overlay */}
-      <LoadingOverlay 
-        isVisible={isAiGenerating} 
+      <LoadingOverlay
+        isVisible={isAiGenerating}
         message="Generazione referto in corso..."
       />
     </div>

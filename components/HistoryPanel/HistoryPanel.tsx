@@ -2,7 +2,14 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, FileText, User, PanelLeftClose, Plus, Search } from "lucide-react";
+import {
+  LogOut,
+  FileText,
+  User,
+  PanelLeftClose,
+  Plus,
+  Search,
+} from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
 import { useReports } from "@/lib/services/reportService";
@@ -47,7 +54,7 @@ export function HistoryPanel({
           <div className="relative w-full mr-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
-              placeholder="Search reports..."
+              placeholder="Cerca..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-10 bg-gray-50 border-gray-200"
@@ -78,15 +85,15 @@ export function HistoryPanel({
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="text-sm text-gray-500">Loading reports...</div>
+            <div className="text-sm text-gray-500">Caricamento...</div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-8">
-            <div className="text-sm text-red-500">Failed to load reports</div>
+            <div className="text-sm text-red-500">Errore nel caricamento</div>
           </div>
         ) : filteredReports.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <div className="text-sm text-gray-500">No reports found</div>
+            <div className="text-sm text-gray-500">Nessun referto trovato</div>
           </div>
         ) : (
           <div className="space-y-1">

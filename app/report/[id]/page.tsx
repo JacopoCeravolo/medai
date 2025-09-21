@@ -92,7 +92,8 @@ export default function ReportPage() {
             minSize={15}
             maxSize={40}
             collapsible={true}
-            onCollapse={() => setIsHistoryVisible(false)}
+            onCollapse={() => dispatch(setIsHistoryVisible(false))}
+            onExpand={() => dispatch(setIsHistoryVisible(true))}
           >
             <HistoryPanel
               onToggleHistory={toggleHistory}
