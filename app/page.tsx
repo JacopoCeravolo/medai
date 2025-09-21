@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,9 +10,8 @@ import { Label } from "@/components/ui/label";
 export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; firstName: string; lastName: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     // Check if user is logged in

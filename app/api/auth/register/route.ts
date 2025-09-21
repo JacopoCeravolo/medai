@@ -35,8 +35,9 @@ export async function POST(request: NextRequest) {
     const result = await db.createUser(firstName, lastName, hashedPassword);
 
     // Generate JWT token
+    const userId = result.id;
     const token = generateToken({
-      userId: (result as any).lastID as number,
+      userId,
       firstName,
       lastName,
     });
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       message: 'User created successfully',
       token,
       user: {
-        id: (result as any).lastID,
+        id: userId,
         firstName,
         lastName,
       },

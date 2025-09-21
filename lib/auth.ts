@@ -1,18 +1,18 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 export interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
+  id: string;
+  firstName: string;
+  lastName: string;
   password: string;
-  created_at: string;
+  createdAt: Date;
 }
 
 export interface JWTPayload {
-  userId: number;
+  userId: string;
   firstName: string;
   lastName: string;
 }
@@ -32,7 +32,7 @@ export function generateToken(payload: JWTPayload): string {
 export function verifyToken(token: string): JWTPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

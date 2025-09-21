@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    const isValidPassword = await verifyPassword(password, (user as any).password);
+    const isValidPassword = await verifyPassword(password, user.password);
     if (!isValidPassword) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -34,18 +34,18 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = generateToken({
-      userId: (user as any).id,
-      firstName: (user as any).first_name,
-      lastName: (user as any).last_name,
+      userId: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
     return NextResponse.json({
       message: 'Login successful',
       token,
       user: {
-        id: (user as any).id,
-        firstName: (user as any).first_name,
-        lastName: (user as any).last_name,
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     });
   } catch (error) {
