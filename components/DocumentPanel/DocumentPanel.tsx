@@ -1,14 +1,25 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, Plus } from "lucide-react";
+import { Report } from "@/lib/store/reportSlice";
 
 interface DocumentPanelProps {
   showHistoryControls?: boolean;
   onToggleHistory?: () => void;
   onNewDocument?: () => void;
+  report?: Report | null;
+  isLoading?: boolean;
+  isNewDocument?: boolean;
 }
 
-export function DocumentPanel({ showHistoryControls, onToggleHistory, onNewDocument }: DocumentPanelProps) {
+export function DocumentPanel({
+  showHistoryControls,
+  onToggleHistory,
+  onNewDocument,
+  report,
+  isLoading,
+  isNewDocument,
+}: DocumentPanelProps) {
   return (
     <div className="h-full flex flex-col bg-white border-r">
       {/* Header */}
@@ -35,28 +46,52 @@ export function DocumentPanel({ showHistoryControls, onToggleHistory, onNewDocum
                 </Button>
               </div>
             )}
-            <h2 className="text-lg font-semibold text-gray-900">Document Viewer</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {report ? report.title : "Document Viewer"}
+            </h2>
           </div>
         </div>
       </div>
-      
+
       {/* Content Area */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
-          <div className="prose prose-gray max-w-none">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Welcome to Your Document Editor
-            </h1>
-            <p className="text-gray-600 leading-relaxed">
-              This is the document viewer panel. Here you can view and read your documents 
-              in a clean, distraction-free environment. The content will be displayed with 
-              proper typography and formatting for optimal readability.
-            </p>
-            <p className="text-gray-600 leading-relaxed mt-4">
-              Select a document from the history panel on the left to view its contents, 
-              or create a new document using the edit panel on the right.
-            </p>
-          </div>
+          {isNewDocument ? (
+            <div className="prose prose-gray max-w-none">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                Welcome to Your Document Editor
+              </h1>
+              <p className="text-gray-600 leading-relaxed">
+                This is the document viewer panel. Here you can view and read
+                your documents in a clean, distraction-free environment. The
+                content will be displayed with proper typography and formatting
+                for optimal readability.
+              </p>
+              <p className="text-gray-600 leading-relaxed mt-4">
+                Select a document from the history panel on the left to view its
+                contents, or create a new document using the edit panel on the
+                right.
+              </p>
+            </div>
+          ) : isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-lg text-gray-600">Loading document...</div>
+            </div>
+          ) : report ? (
+            <div className="prose prose-gray max-w-none">
+              <div className="mb-4 text-sm text-gray-500">
+                Created: {new Date(report.createdAt).toLocaleDateString()} |
+                Updated: {new Date(report.updatedAt).toLocaleDateString()}
+              </div>
+              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
+                {report.content}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-lg text-gray-600">No document selected</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

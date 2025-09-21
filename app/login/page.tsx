@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch } from "@/lib/store/hooks";
@@ -18,6 +24,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +53,13 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Update Redux state with user and token
-        dispatch(setUser({
-          user: data.user,
-          token: data.token
-        }));
-        
+        dispatch(
+          setUser({
+            user: data.user,
+            token: data.token,
+          })
+        );
+
         // Redirect to home page
         router.push("/");
       } else {
@@ -63,9 +77,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to your account to continue
-          </CardDescription>
+          <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,7 +86,7 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
               <Input
@@ -86,7 +98,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
@@ -98,7 +110,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -110,18 +122,18 @@ export default function LoginPage() {
                 required
               />
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center text-sm">
             <span className="text-slate-600 dark:text-slate-400">
               Don&apos;t have an account?{" "}
             </span>
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               className="text-primary hover:underline font-medium"
             >
               Sign up

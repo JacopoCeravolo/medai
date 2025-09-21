@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/resizable";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { initializeAuth } from "@/lib/store/userSlice";
+import { setIsHistoryVisible } from "@/lib/store/uiSlice";
 
 export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.user);
-  const [isHistoryVisible, setIsHistoryVisible] = useState(true);
+  const { isHistoryVisible } = useAppSelector((state) => state.ui);
 
   useEffect(() => {
     // Initialize auth from localStorage on app start
@@ -32,7 +33,7 @@ export default function Home() {
   }, [isLoading, isAuthenticated, router]);
 
   const toggleHistory = () => {
-    setIsHistoryVisible(!isHistoryVisible);
+    dispatch(setIsHistoryVisible(!isHistoryVisible));
   };
 
   const handleNewDocument = () => {
@@ -55,7 +56,6 @@ export default function Home() {
   return (
     <div className="h-screen bg-white">
       {isHistoryVisible ? (
-        // Three-panel layout when history is visible
         <ResizablePanelGroup
           key="three-panel"
           direction="horizontal"
@@ -78,9 +78,10 @@ export default function Home() {
 
           <ResizablePanel defaultSize={50} minSize={30}>
             <DocumentPanel
-              showHistoryControls={false}
+              showHistoryControls={true}
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
+              isNewDocument={true}
             />
           </ResizablePanel>
 
@@ -91,17 +92,17 @@ export default function Home() {
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        // Two-panel layout when history is hidden
         <ResizablePanelGroup
           key="two-panel"
           direction="horizontal"
           className="h-full"
         >
-          <ResizablePanel defaultSize={70} minSize={30}>
+          <ResizablePanel defaultSize={70} minSize={50}>
             <DocumentPanel
               showHistoryControls={true}
               onToggleHistory={toggleHistory}
               onNewDocument={handleNewDocument}
+              isNewDocument={true}
             />
           </ResizablePanel>
 

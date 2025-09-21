@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
+import { setLoading, setError, setReports } from "@/lib/store/reportSlice";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, Plus } from "lucide-react";
 import Link from "next/link";
@@ -17,18 +19,79 @@ interface HistoryPanelProps {
   onNewDocument?: () => void;
 }
 
-export function HistoryPanel({ onToggleHistory, onNewDocument }: HistoryPanelProps) {
+export function HistoryPanel({
+  onToggleHistory,
+  onNewDocument,
+}: HistoryPanelProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated } = useAppSelector((state) => state.user);
+  const { user, isAuthenticated, token } = useAppSelector(
+    (state) => state.user
+  );
+  const { reports, isLoading } = useAppSelector((state) => state.report);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchReports = async () => {
+      if (!isAuthenticated || !token) return;
+
+      dispatch(setLoading(true));
+
+      try {
+        const response = await fetch("/api/report", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (isMounted) {
+          if (response.ok) {
+            dispatch(setReports(data.reports));
+          } else {
+            dispatch(setError(data.error || "Failed to load reports"));
+          }
+        }
+      } catch (error) {
+        if (isMounted) {
+          dispatch(setError("An error occurred while loading reports"));
+        }
+      }
+    };
+
+    fetchReports();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, token]);
 
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
   };
 
+  const handleReportClick = (reportId: string) => {
+    router.push(`/report/${reportId}`);
+  };
+
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 48) return "1 day ago";
+    return `${Math.floor(diffInHours / 24)} days ago`;
   };
 
   return (
@@ -57,21 +120,31 @@ export function HistoryPanel({ onToggleHistory, onNewDocument }: HistoryPanelPro
           </div>
         </div>
       </div>
-      
+
       {/* Document List */}
       <div className="flex-1 p-4 space-y-2 overflow-y-auto">
-        <div className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm">
-          <div className="font-medium">Document 1.txt</div>
-          <div className="text-gray-500 text-xs">2 hours ago</div>
-        </div>
-        <div className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm">
-          <div className="font-medium">Project Notes.md</div>
-          <div className="text-gray-500 text-xs">1 day ago</div>
-        </div>
-        <div className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm">
-          <div className="font-medium">Meeting Notes.txt</div>
-          <div className="text-gray-500 text-xs">3 days ago</div>
-        </div>
+        {isLoading ? (
+          <div className="text-center text-gray-500 text-sm py-4">
+            Loading reports...
+          </div>
+        ) : reports.length === 0 ? (
+          <div className="text-center text-gray-500 text-sm py-4">
+            No reports yet. Create your first document!
+          </div>
+        ) : (
+          reports.map((report) => (
+            <div
+              key={report.id}
+              onClick={() => handleReportClick(report.id)}
+              className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm transition-colors"
+            >
+              <div className="font-medium truncate">{report.title}</div>
+              <div className="text-gray-500 text-xs">
+                {formatDate(report.updatedAt)}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* User Menu at Bottom */}
@@ -93,7 +166,10 @@ export function HistoryPanel({ onToggleHistory, onNewDocument }: HistoryPanelPro
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" className="w-48">
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 focus:text-red-600"
+              >
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
