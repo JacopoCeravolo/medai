@@ -1,18 +1,10 @@
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { LogOut, FileText, User } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
-import { setLoading, setError, setReports } from "@/lib/store/reportSlice";
-import { Button } from "@/components/ui/button";
-import { PanelLeftClose, Plus } from "lucide-react";
-import Link from "next/link";
+import { useReports } from "@/lib/services/reportService";
 
 interface HistoryPanelProps {
   onToggleHistory?: () => void;
@@ -25,48 +17,10 @@ export function HistoryPanel({
 }: HistoryPanelProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated, token } = useAppSelector(
-    (state) => state.user
-  );
-  const { reports, isLoading } = useAppSelector((state) => state.report);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchReports = async () => {
-      if (!isAuthenticated || !token) return;
-
-      dispatch(setLoading(true));
-
-      try {
-        const response = await fetch("/api/report", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (isMounted) {
-          if (response.ok) {
-            dispatch(setReports(data.reports));
-          } else {
-            dispatch(setError(data.error || "Failed to load reports"));
-          }
-        }
-      } catch (error) {
-        if (isMounted) {
-          dispatch(setError("An error occurred while loading reports"));
-        }
-      }
-    };
-
-    fetchReports();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated, token]);
+  const { user, isAuthenticated } = useAppSelector((state) => state.user);
+  
+  // Use React Query instead of Redux for data fetching
+  const { data: reports = [], isLoading, error } = useReports();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -77,118 +31,76 @@ export function HistoryPanel({
     router.push(`/report/${reportId}`);
   };
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    );
-
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    if (diffInHours < 48) return "1 day ago";
-    return `${Math.floor(diffInHours / 24)} days ago`;
-  };
-
   return (
     <div className="h-full flex flex-col bg-white border-r">
-      {/* Header with Controls */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-2">
+      {/* Header */}
+      <div className="p-4 border-b bg-gray-50">
+        <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">History</h2>
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onNewDocument}
-              className="h-8 w-8 p-0"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleHistory}
-              className="h-8 w-8 p-0"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </div>
 
-      {/* Document List */}
-      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+      {/* Reports List */}
+      <div className="flex-1 overflow-y-auto p-2">
         {isLoading ? (
-          <div className="text-center text-gray-500 text-sm py-4">
-            Loading reports...
+          <div className="flex items-center justify-center py-8">
+            <div className="text-sm text-gray-500">Loading reports...</div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-sm text-red-500">Failed to load reports</div>
           </div>
         ) : reports.length === 0 ? (
-          <div className="text-center text-gray-500 text-sm py-4">
-            No reports yet. Create your first document!
+          <div className="flex items-center justify-center py-8">
+            <div className="text-sm text-gray-500">No reports yet</div>
           </div>
         ) : (
-          reports.map((report) => (
-            <div
-              key={report.id}
-              onClick={() => handleReportClick(report.id)}
-              className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm transition-colors"
-            >
-              <div className="font-medium truncate">{report.title}</div>
-              <div className="text-gray-500 text-xs">
-                {formatDate(report.updatedAt)}
-              </div>
-            </div>
-          ))
+          <div className="space-y-1">
+            {reports.map((report) => (
+              <button
+                key={report.id}
+                onClick={() => handleReportClick(report.id)}
+                className="w-full p-3 text-left rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-colors group"
+              >
+                <div className="flex items-start gap-3">
+                  <FileText className="h-4 w-4 text-gray-400 mt-0.5 group-hover:text-gray-600" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-gray-900 truncate">
+                      {report.title}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* User Menu at Bottom */}
+      {/* User Section */}
       <div className="p-4 border-t bg-gray-50">
-        {isAuthenticated && user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-md transition-colors">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gray-200 text-gray-700 text-sm">
-                    {getInitials(user.firstName, user.lastName)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-left">
-                  <div className="text-sm font-medium text-gray-900">
-                    {user.firstName} {user.lastName}
-                  </div>
+        {isAuthenticated && user && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                <User className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {user.firstName} {user.lastName}
                 </div>
               </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-48">
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="text-red-600 focus:text-red-600"
-              >
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="space-y-2">
-            <div className="text-sm text-gray-600">Not logged in</div>
-            <div className="flex gap-2">
-              <Link href="/login" className="flex-1">
-                <Button variant="outline" size="sm" className="w-full">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/register" className="flex-1">
-                <Button size="sm" className="w-full">
-                  Sign Up
-                </Button>
-              </Link>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="p-1 h-8 w-8 text-gray-500 hover:text-gray-700"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         )}
       </div>

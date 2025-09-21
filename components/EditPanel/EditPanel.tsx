@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppSelector } from "@/lib/store/hooks";
 import { Report } from "@/lib/store/reportSlice";
+import { useCreateReport } from "@/lib/services/reportService";
 
 interface EditPanelProps {
   report?: Report | null;
@@ -13,9 +14,10 @@ interface EditPanelProps {
 export function EditPanel({ report }: EditPanelProps) {
   const [fileName, setFileName] = useState("untitled.txt");
   const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { token } = useAppSelector((state) => state.user);
+
+  const createReportMutation = useCreateReport();
 
   const handleSave = async () => {
     if (!content.trim()) {
@@ -28,37 +30,20 @@ export function EditPanel({ report }: EditPanelProps) {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      const response = await fetch("/api/report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: fileName.replace(/\.[^/.]+$/, ""), // Remove file extension
-          content,
-        }),
+      const result = await createReportMutation.mutateAsync({
+        title: fileName.replace(/\.[^/.]+$/, ""), // Remove file extension
+        content,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Clear the form
-        setFileName("untitled.txt");
-        setContent("");
-        
-        // Redirect to the report page
-        router.push(`/report/${data.report.id}`);
-      } else {
-        alert(data.error || "Failed to save document");
-      }
+      // Clear the form
+      setFileName("untitled.txt");
+      setContent("");
+      
+      // Redirect to the report page
+      router.push(`/report/${result.id}`);
     } catch (error) {
       alert("An error occurred while saving the document");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -105,10 +90,10 @@ export function EditPanel({ report }: EditPanelProps) {
         <div className="flex gap-2">
           <Button 
             onClick={handleSave} 
-            disabled={isLoading}
+            disabled={createReportMutation.isPending}
             className="flex-1 bg-black text-white hover:bg-gray-800 disabled:opacity-50"
           >
-            {isLoading ? "Saving..." : "Save Document"}
+            {createReportMutation.isPending ? "Saving..." : "Save Document"}
           </Button>
           <Button onClick={handleNew} variant="outline" className="border-gray-300">
             New
