@@ -31,13 +31,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store content in Vercel Blob
+    // Store content in Vercel Blob and wait for it to be fully available
     const blobFileName = `reports/${decoded?.userId}/${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;
     const { url: blobUrl } = await put(blobFileName, content, { 
       access: 'public' 
     });
 
-    // Save report to database
+    // Verify blob is accessible before proceeding with database save
+    // This ensures the content is available when React Query refetches
+    try {
+      const verifyResponse = await fetch(blobUrl);
+      if (!verifyResponse.ok) {
+        throw new Error('Blob not yet accessible');
+      }
+    } catch (error) {
+      // If blob is not immediately accessible, wait a moment and try again
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const retryResponse = await fetch(blobUrl);
+      if (!retryResponse.ok) {
+        throw new Error('Failed to verify blob accessibility');
+      }
+    }
+
+    // Now save report to database - blob content is guaranteed to be available
     const report = await prisma.report.create({
       data: {
         title,

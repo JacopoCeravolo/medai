@@ -59,8 +59,13 @@ export const useCreateReport = () => {
     onSuccess: (newReport) => {
       // Invalidate and refetch reports list
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reports });
-      // Add the new report to the cache
-      queryClient.setQueryData(QUERY_KEYS.report(newReport.id), newReport);
+      // Invalidate the specific report cache to force refetch with content
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.report(newReport.id) });
+      // Pre-fetch the full report data to populate cache immediately
+      queryClient.prefetchQuery({
+        queryKey: QUERY_KEYS.report(newReport.id),
+        queryFn: () => fetchReport(newReport.id),
+      });
     },
   });
 };
