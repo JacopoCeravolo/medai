@@ -8,16 +8,24 @@ const langfuse = new LangfuseClient({
   baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
 });
 
+export interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 export interface PromptTemplate {
   name: string;
   version?: number;
   variables: Record<string, string>;
+  messages: ChatMessage[];
 }
+
+export type GeminiPrompt = string | ChatMessage[] | PromptTemplate;
 
 export async function getPromptTemplate(
   promptName: string,
   variables: Record<string, string>
-): Promise<any> {
+): Promise<PromptTemplate> {
   try {
     // Get the prompt template from Langfuse
     const prompt = await langfuse.prompt.get(promptName, {
@@ -29,11 +37,22 @@ export async function getPromptTemplate(
       throw new Error(`Prompt template '${promptName}' not found in Langfuse`);
     }
 
-    // Insert variables into chat prompt template
-    const compiledPrompt = prompt.compile(variables);
+    // Convert the prompt to the expected format
+    const compiledPrompt: PromptTemplate = {
+      name: promptName,
+      variables,
+      messages: Array.isArray(prompt) 
+        ? prompt.map(msg => ({
+            role: msg.role || 'user',
+            content: msg.content || String(msg)
+          }))
+        : [{
+            role: 'user',
+            content: typeof prompt === 'string' ? prompt : JSON.stringify(prompt)
+          }]
+    };
 
-    console.log("compiledPrompt", compiledPrompt);
-
+    console.log("Processed prompt template:", compiledPrompt);
     return compiledPrompt;
   } catch (error) {
     console.error('Error fetching prompt from Langfuse:', error);

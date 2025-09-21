@@ -42,25 +42,42 @@ export async function generateContent(
   }
 }
 
+import { PromptTemplate, ChatMessage } from './langfuseService';
+
+type GeminiPrompt = string | ChatMessage[] | PromptTemplate;
+
 export async function generateReportContent(
-  promptTemplate: any
+  promptTemplate: GeminiPrompt
 ): Promise<string> {
   try {
-    // Convert chat format from Langfuse to single string for Gemini
+    // Convert different prompt template formats to a single string
     let finalPrompt = "";
-    
+
     if (typeof promptTemplate === 'string') {
+      // Direct string prompt
       finalPrompt = promptTemplate;
     } else if (Array.isArray(promptTemplate)) {
-      // Handle chat format: concatenate system and user messages
-      finalPrompt = promptTemplate
-        .map((message: any) => {
+      // Array of chat messages
+      finalPrompt = (promptTemplate as ChatMessage[])
+        .map((message: ChatMessage) => {
           if (message.role === 'system') {
             return `System: ${message.content}`;
           } else if (message.role === 'user') {
             return `User: ${message.content}`;
           }
-          return message.content || message;
+          return message.content || String(message);
+        })
+        .join('\n\n');
+    } else if (promptTemplate.messages && Array.isArray(promptTemplate.messages)) {
+      // PromptTemplate object with messages array
+      finalPrompt = promptTemplate.messages
+        .map((message) => {
+          if (message.role === 'system') {
+            return `System: ${message.content}`;
+          } else if (message.role === 'user') {
+            return `User: ${message.content}`;
+          }
+          return message.content;
         })
         .join('\n\n');
     } else {

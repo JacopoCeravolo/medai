@@ -36,7 +36,6 @@ export function EditPanel({
   const { currentReportId } = useAppSelector((state) => state.report);
 
   const createReportMutation = useCreateReport();
-  const updateReportMutation = useUpdateReportContent();
 
   // Fetch report data if we have a current report ID and it's not a new document
   const { data: report } = useReport(currentReportId || "");

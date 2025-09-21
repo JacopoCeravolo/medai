@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PanelLeft, Plus, ArrowRight, Edit, Save, Loader2 } from "lucide-react";
+import { PanelLeft, Plus, ArrowRight, Edit, Save } from "lucide-react";
 import { Report } from "@/lib/store/reportSlice";
 import { useUpdateReportContent } from "@/lib/services/reportService";
 

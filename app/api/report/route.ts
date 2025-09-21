@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     
     try {
       decoded = verifyToken(token);
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
 
         // Generate content using Gemini
         const generatedContent = await generateReportContent(
-          promptTemplate
+          promptTemplate.messages.length > 0 
+            ? promptTemplate.messages 
+            : JSON.stringify(promptTemplate)
         );
 
         // TODO: Add logging back when logGeneration is implemented
@@ -164,7 +166,7 @@ export async function GET(request: NextRequest) {
     
     try {
       decoded = verifyToken(token);
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
