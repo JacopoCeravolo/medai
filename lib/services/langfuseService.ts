@@ -32,28 +32,32 @@ export async function getPromptTemplate(
       label: "latest",
       type: "chat",
     }); 
+
+    console.log("Prompt template from Langfuse:", prompt);
     
     if (!prompt) {
       throw new Error(`Prompt template '${promptName}' not found in Langfuse`);
     }
 
     // Convert the prompt to the expected format
-    const compiledPrompt: PromptTemplate = {
+    const compiledPrompt = prompt.compile(variables);
+    console.log("Compiled prompt:", compiledPrompt);
+
+    const promptTemplate: PromptTemplate = {
       name: promptName,
       variables,
-      messages: Array.isArray(prompt) 
-        ? prompt.map(msg => ({
+      messages: Array.isArray(compiledPrompt) 
+        ? compiledPrompt.map(msg => ({
             role: msg.role || 'user',
             content: msg.content || String(msg)
           }))
         : [{
             role: 'user',
-            content: typeof prompt === 'string' ? prompt : JSON.stringify(prompt)
+            content: typeof compiledPrompt === 'string' ? compiledPrompt : JSON.stringify(compiledPrompt)
           }]
     };
 
-    console.log("Processed prompt template:", compiledPrompt);
-    return compiledPrompt;
+    return promptTemplate;
   } catch (error) {
     console.error('Error fetching prompt from Langfuse:', error);
     throw new Error(`Failed to fetch prompt template: ${error}`);
