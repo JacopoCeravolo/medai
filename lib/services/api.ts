@@ -1,10 +1,11 @@
-interface FetchOptions extends RequestInit {
-  body?: any;
+interface FetchOptions extends Omit<RequestInit, 'body'> {
+  body?: Record<string, unknown>;
 }
 
 const fetchData = async (
   url: string,
   options: FetchOptions = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const token = localStorage.getItem('token');
   
@@ -44,10 +45,13 @@ const fetchData = async (
 export const api = {
   get: (url: string, options?: FetchOptions) =>
     fetchData(url, { ...options, method: 'GET' }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   post: (url: string, body: any, options?: FetchOptions) =>
     fetchData(url, { ...options, method: 'POST', body }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   put: (url: string, body: any, options?: FetchOptions) =>
     fetchData(url, { ...options, method: 'PUT', body }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete: (url: string, body?: any, options?: FetchOptions) =>
     fetchData(url, { ...options, method: 'DELETE', body }),
 };

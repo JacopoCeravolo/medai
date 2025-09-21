@@ -75,7 +75,7 @@ export function DocumentPanel({
             </div>
           ) : isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="text-lg text-gray-600">Loading document...</div>
+              <div className="text-lg text-gray-600">Caricamento...</div>
             </div>
           ) : report ? (
             <div className="prose prose-gray max-w-none">

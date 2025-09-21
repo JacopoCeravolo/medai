@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { HistoryPanel } from "@/components/HistoryPanel/HistoryPanel";
 import { DocumentPanel } from "@/components/DocumentPanel/DocumentPanel";
-import { EditPanel } from "@/components/EditPanel/EditPanel";
+import { EditChatContainer } from "@/components/EditChatContainer/EditChatContainer";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -89,7 +89,7 @@ export default function Home() {
           <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
 
           <ResizablePanel defaultSize={30} minSize={25}>
-            <EditPanel />
+            <EditChatContainer isNewDocument={true} />
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
@@ -110,7 +110,7 @@ export default function Home() {
           <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
 
           <ResizablePanel defaultSize={30} minSize={25}>
-            <EditPanel />
+            <EditChatContainer isNewDocument={true} />
           </ResizablePanel>
         </ResizablePanelGroup>
       )}

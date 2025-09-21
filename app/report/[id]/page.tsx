@@ -2,11 +2,13 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
-import { useReport } from "@/lib/services/reportService";
 import { setIsHistoryVisible } from "@/lib/store/uiSlice";
+import { setCurrentReport, setCurrentReportId } from "@/lib/store/reportSlice";
+import { useReport } from "@/lib/services/reportService";
+import { useEffect } from "react";
 import { HistoryPanel } from "@/components/HistoryPanel/HistoryPanel";
 import { DocumentPanel } from "@/components/DocumentPanel/DocumentPanel";
-import { EditPanel } from "@/components/EditPanel/EditPanel";
+import { EditChatContainer } from "@/components/EditChatContainer/EditChatContainer";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -26,6 +28,13 @@ export default function ReportPage() {
   // Use React Query instead of Redux for data fetching
   const { data: currentReport, isLoading, error } = useReport(reportId || "");
 
+  useEffect(() => {
+    if (currentReport) {
+      dispatch(setCurrentReport(currentReport));
+      dispatch(setCurrentReportId(currentReport.id));
+    }
+  }, [currentReport, dispatch]);
+
   const toggleHistory = () => {
     dispatch(setIsHistoryVisible(!isHistoryVisible));
   };
@@ -44,7 +53,9 @@ export default function ReportPage() {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-lg text-red-600 mb-4">{error.message || "Failed to load report"}</div>
+          <div className="text-lg text-red-600 mb-4">
+            {error.message || "Failed to load report"}
+          </div>
           <button
             onClick={() => router.push("/")}
             className="text-blue-600 hover:underline"
@@ -93,7 +104,7 @@ export default function ReportPage() {
           <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
 
           <ResizablePanel defaultSize={30} minSize={25}>
-            <EditPanel />
+            <EditChatContainer isLoading={isLoading} />
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
@@ -115,7 +126,7 @@ export default function ReportPage() {
           <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
 
           <ResizablePanel defaultSize={30} minSize={25}>
-            <EditPanel />
+            <EditChatContainer isLoading={isLoading} />
           </ResizablePanel>
         </ResizablePanelGroup>
       )}

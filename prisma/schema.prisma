@@ -21,15 +21,25 @@ model User {
   @@map("users")
 }
 
+enum ReportType {
+  REFERTO
+  NOTA
+  CHIRURGIA
+}
+
 model Report {
-  id        String   @id @default(cuid())
-  title     String
-  blobUrl   String   @map("blob_url")
-  userId    String   @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String     @id @default(cuid())
+  title        String
+  blobUrl      String     @map("blob_url")
+  reportType   ReportType @default(REFERTO) @map("report_type")
+  docName      String     @map("doc_name")
+  informazioni String
+  note         String
+  userId       String     @map("user_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
   
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("reports")
 }

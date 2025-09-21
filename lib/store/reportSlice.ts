@@ -1,10 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type ReportType = "REFERTO" | "NOTA" | "CHIRURGIA";
+
 export interface Report {
   id: string;
   title: string;
   content?: string;
   blobUrl: string;
+  reportType: ReportType;
+  docName: string;
+  informazioni: string;
+  note: string;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -23,6 +29,7 @@ export interface ReportListItem {
 
 interface ReportState {
   currentReport: Report | null;
+  currentReportId: string | null;
   reports: ReportListItem[];
   isLoading: boolean;
   error: string | null;
@@ -30,6 +37,7 @@ interface ReportState {
 
 const initialState: ReportState = {
   currentReport: null,
+  currentReportId: null,
   reports: [],
   isLoading: false,
   error: null,
@@ -51,8 +59,12 @@ const reportSlice = createSlice({
     },
     setCurrentReport: (state, action: PayloadAction<Report>) => {
       state.currentReport = action.payload;
+      state.currentReportId = action.payload.id;
       state.isLoading = false;
       state.error = null;
+    },
+    setCurrentReportId: (state, action: PayloadAction<string | null>) => {
+      state.currentReportId = action.payload;
     },
     setReports: (state, action: PayloadAction<ReportListItem[]>) => {
       state.reports = action.payload;
@@ -64,6 +76,7 @@ const reportSlice = createSlice({
     },
     clearCurrentReport: (state) => {
       state.currentReport = null;
+      state.currentReportId = null;
     },
     clearError: (state) => {
       state.error = null;
@@ -75,6 +88,7 @@ export const {
   setLoading,
   setError,
   setCurrentReport,
+  setCurrentReportId,
   setReports,
   addReport,
   clearCurrentReport,

@@ -19,7 +19,14 @@ const fetchReport = async (id: string): Promise<Report> => {
   return response.report;
 };
 
-const createReport = async (reportData: { title: string; content: string }): Promise<Report> => {
+const createReport = async (reportData: { 
+  title: string; 
+  content: string;
+  reportType: string;
+  docName: string;
+  informazioni: string;
+  note: string;
+}): Promise<Report> => {
   const response = await api.post('/api/report', reportData);
   return response.report;
 };

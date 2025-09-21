@@ -21,12 +21,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const { title, content } = await request.json();
+    const { title, content, reportType, docName, informazioni, note } = await request.json();
 
     // Validate input
     if (!title || !content || content.trim().length === 0) {
       return NextResponse.json(
         { error: "Title and content are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!reportType || !docName || !informazioni || !note) {
+      return NextResponse.json(
+        { error: "All report fields are required" },
         { status: 400 }
       );
     }
@@ -58,7 +65,11 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         blobUrl,
-        userId: decoded?.userId,
+        reportType,
+        docName,
+        informazioni,
+        note,
+        userId: decoded!.userId,
       },
       include: {
         user: {
@@ -77,6 +88,10 @@ export async function POST(request: NextRequest) {
         id: report.id,
         title: report.title,
         blobUrl: report.blobUrl,
+        reportType: report.reportType,
+        docName: report.docName,
+        informazioni: report.informazioni,
+        note: report.note,
         createdAt: report.createdAt,
         updatedAt: report.updatedAt,
         user: report.user,
