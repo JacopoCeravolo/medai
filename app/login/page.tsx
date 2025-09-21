@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { setUser } from "@/lib/store/userSlice";
 
 export default function LoginPage() {
   const [firstName, setFirstName] = useState("");
@@ -15,6 +17,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +40,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store token in localStorage
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // Update Redux state with user and token
+        dispatch(setUser({
+          user: data.user,
+          token: data.token
+        }));
         
         // Redirect to home page
         router.push("/");
