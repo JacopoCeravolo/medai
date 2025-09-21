@@ -88,7 +88,7 @@ export function EditPanel({
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
       <div 
-        className={`p-4 border-b ${
+        className={`p-4 border-b h-20 flex items-center ${
           isCollapsed ? 'cursor-pointer hover:bg-gray-50' : ''
         }`}
         onClick={isCollapsed ? onHeaderClick : undefined}

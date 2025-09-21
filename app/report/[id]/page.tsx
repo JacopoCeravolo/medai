@@ -14,6 +14,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
+import { initializeAuth } from "@/lib/store/userSlice";
 
 export default function ReportPage() {
   const router = useRouter();
@@ -43,11 +44,22 @@ export default function ReportPage() {
     router.push("/");
   };
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    router.push("/login");
+  useEffect(() => {
+    // Initialize auth from localStorage on app start
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Only redirect if we're done loading and not authenticated
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  // While waiting for authentication check and potential redirect, return null.
+  /* if (!isAuthenticated) {
     return null;
-  }
+  } */
 
   if (error) {
     return (

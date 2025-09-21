@@ -22,10 +22,8 @@ export function EditChatContainer({ isNewDocument = false, isLoading = false }: 
 
   return (
     <div className="h-full flex flex-col">
-      {/* EditPanel - collapses to header only when chat is expanded */}
-      <div className={`transition-all duration-300 ${
-        isChatExpanded ? 'h-12 overflow-hidden' : 'flex-1'
-      }`}>
+      {/* EditPanel Wrapper */}
+      <div className={`${isChatExpanded ? 'h-20' : 'flex-1'} min-h-0`}>
         <EditPanel 
           isNewDocument={isNewDocument} 
           isLoading={isLoading}
@@ -34,10 +32,8 @@ export function EditChatContainer({ isNewDocument = false, isLoading = false }: 
         />
       </div>
       
-      {/* ChatPanel - takes remaining space when expanded */}
-      <div className={`transition-all duration-300 ${
-        isChatExpanded ? 'flex-1' : 'h-auto'
-      }`}>
+      {/* ChatPanel Wrapper */}
+      <div className={`${isChatExpanded ? 'flex-1' : 'h-20'} min-h-0`}>
         <ChatPanel 
           isExpanded={isChatExpanded}
           onToggleExpanded={toggleChat}

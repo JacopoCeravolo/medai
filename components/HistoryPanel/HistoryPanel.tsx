@@ -1,7 +1,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, FileText, User, PanelLeftClose, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { LogOut, FileText, User, PanelLeftClose, Plus, Search } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
 import { useReports } from "@/lib/services/reportService";
@@ -20,9 +21,14 @@ export function HistoryPanel({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.user);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   // Use React Query instead of Redux for data fetching
   const { data: reports = [], isLoading, error } = useReports();
+
+  const filteredReports = reports.filter((report) =>
+    report.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleLogout = () => {
     dispatch(logout());
@@ -36,28 +42,34 @@ export function HistoryPanel({
   return (
     <div className="h-full flex flex-col bg-white border-r">
       {/* Header */}
-      <div className="p-4 border-b bg-gray-50">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">History</h2>
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleHistory}
-                className="h-8 w-8 p-0"
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNewDocument}
-                className="h-8 w-8 p-0"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+      <div className="p-4 border-b h-20 flex items-center">
+        <div className="flex items-center justify-between w-full">
+          <div className="relative w-full mr-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search reports..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10 bg-gray-50 border-gray-200"
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleHistory}
+              className="h-8 w-8 p-0"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onNewDocument}
+              className="h-8 w-8 p-0"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
@@ -72,13 +84,13 @@ export function HistoryPanel({
           <div className="flex items-center justify-center py-8">
             <div className="text-sm text-red-500">Failed to load reports</div>
           </div>
-        ) : reports.length === 0 ? (
+        ) : filteredReports.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <div className="text-sm text-gray-500">No reports yet</div>
+            <div className="text-sm text-gray-500">No reports found</div>
           </div>
         ) : (
           <div className="space-y-1">
-            {reports.map((report) => {
+            {filteredReports.map((report) => {
               const isSelected = currentDocumentId === report.id;
               return (
                 <button
