@@ -9,9 +9,15 @@ import {
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
 import { Button } from "@/components/ui/button";
+import { PanelLeftClose, Plus } from "lucide-react";
 import Link from "next/link";
 
-export function HistoryPanel() {
+interface HistoryPanelProps {
+  onToggleHistory?: () => void;
+  onNewDocument?: () => void;
+}
+
+export function HistoryPanel({ onToggleHistory, onNewDocument }: HistoryPanelProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.user);
@@ -27,9 +33,29 @@ export function HistoryPanel() {
 
   return (
     <div className="h-full flex flex-col bg-white border-r">
-      {/* Header */}
+      {/* Header with Controls */}
       <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-900">History</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold text-gray-900">History</h2>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onNewDocument}
+              className="h-8 w-8 p-0"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleHistory}
+              className="h-8 w-8 p-0"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
       
       {/* Document List */}

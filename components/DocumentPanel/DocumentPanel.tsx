@@ -1,21 +1,61 @@
-export function DocumentPanel() {
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { PanelLeft, Plus } from "lucide-react";
+
+interface DocumentPanelProps {
+  showHistoryControls?: boolean;
+  onToggleHistory?: () => void;
+  onNewDocument?: () => void;
+}
+
+export function DocumentPanel({ showHistoryControls, onToggleHistory, onNewDocument }: DocumentPanelProps) {
   return (
     <div className="h-full flex flex-col bg-white border-r">
       {/* Header */}
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-900">Document Viewer</h2>
+      <div className="p-4 border-b bg-gray-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {showHistoryControls && (
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggleHistory}
+                  className="h-8 w-8 p-0"
+                >
+                  <PanelLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onNewDocument}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <h2 className="text-lg font-semibold text-gray-900">Document Viewer</h2>
+          </div>
+        </div>
       </div>
       
-      {/* Document Content */}
-      <div className="flex-1 p-4">
-        <div className="h-full bg-gray-50 rounded-md p-4">
-          <div className="text-gray-600 text-sm mb-4">
-            Current Document: untitled.txt
-          </div>
-          <div className="font-mono text-sm leading-relaxed text-gray-800">
-            <p>Welcome to your document editor!</p>
-            <p className="mt-2">This is the main document viewing area where you can see your content.</p>
-            <p className="mt-2">Select a document from the history panel or create a new one in the edit panel.</p>
+      {/* Content Area */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="prose prose-gray max-w-none">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Welcome to Your Document Editor
+            </h1>
+            <p className="text-gray-600 leading-relaxed">
+              This is the document viewer panel. Here you can view and read your documents 
+              in a clean, distraction-free environment. The content will be displayed with 
+              proper typography and formatting for optimal readability.
+            </p>
+            <p className="text-gray-600 leading-relaxed mt-4">
+              Select a document from the history panel on the left to view its contents, 
+              or create a new document using the edit panel on the right.
+            </p>
           </div>
         </div>
       </div>

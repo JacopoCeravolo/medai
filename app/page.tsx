@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HistoryPanel } from "@/components/HistoryPanel/HistoryPanel";
 import { DocumentPanel } from "@/components/DocumentPanel/DocumentPanel";
@@ -17,6 +17,7 @@ export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.user);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(true);
 
   useEffect(() => {
     // Initialize auth from localStorage on app start
@@ -29,6 +30,15 @@ export default function Home() {
       router.push("/login");
     }
   }, [isLoading, isAuthenticated, router]);
+
+  const toggleHistory = () => {
+    setIsHistoryVisible(!isHistoryVisible);
+  };
+
+  const handleNewDocument = () => {
+    // TODO: Implement new document functionality
+    console.log("Creating new document...");
+  };
 
   if (isLoading) {
     return (
@@ -44,26 +54,64 @@ export default function Home() {
 
   return (
     <div className="h-screen bg-white">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* History Panel - Left */}
-        <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-          <HistoryPanel />
-        </ResizablePanel>
-        
-        <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
-        
-        {/* Document Panel - Center */}
-        <ResizablePanel defaultSize={45} minSize={30}>
-          <DocumentPanel />
-        </ResizablePanel>
-        
-        <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
-        
-        {/* Edit Panel - Right */}
-        <ResizablePanel defaultSize={30} minSize={25} maxSize={50}>
-          <EditPanel />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      {isHistoryVisible ? (
+        // Three-panel layout when history is visible
+        <ResizablePanelGroup
+          key="three-panel"
+          direction="horizontal"
+          className="h-full"
+        >
+          <ResizablePanel
+            defaultSize={20}
+            minSize={15}
+            maxSize={40}
+            collapsible={true}
+            onCollapse={() => setIsHistoryVisible(false)}
+          >
+            <HistoryPanel
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <DocumentPanel
+              showHistoryControls={false}
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={30} minSize={25}>
+            <EditPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        // Two-panel layout when history is hidden
+        <ResizablePanelGroup
+          key="two-panel"
+          direction="horizontal"
+          className="h-full"
+        >
+          <ResizablePanel defaultSize={70} minSize={30}>
+            <DocumentPanel
+              showHistoryControls={true}
+              onToggleHistory={toggleHistory}
+              onNewDocument={handleNewDocument}
+            />
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+          <ResizablePanel defaultSize={30} minSize={25}>
+            <EditPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )}
     </div>
   );
 }
