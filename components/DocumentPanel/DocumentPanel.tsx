@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PanelLeft, Plus, ArrowRight } from "lucide-react";
+import { PanelLeft, Plus, ArrowRight, Edit, Save, Loader2 } from "lucide-react";
 import { Report } from "@/lib/store/reportSlice";
+import { useUpdateReportContent } from "@/lib/services/reportService";
 
 interface DocumentPanelProps {
   showHistoryControls?: boolean;
@@ -20,6 +21,37 @@ export function DocumentPanel({
   isLoading,
   isNewDocument,
 }: DocumentPanelProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
+  const updateReportMutation = useUpdateReportContent();
+
+  const handleEditClick = () => {
+    if (report) {
+      setEditedContent(report.content || "");
+      setIsEditing(true);
+    }
+  };
+
+  const handleSaveClick = async () => {
+    if (report?.id) {
+      try {
+        await updateReportMutation.mutateAsync({
+          id: report.id,
+          content: editedContent,
+          reportType: report.reportType || "REFERTO",
+          docName: report.docName || "",
+          informazioni: report.informazioni || "",
+        });
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error updating report:", error);
+      }
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedContent(e.target.value);
+  };
   const WelcomeInstruction = () => (
     <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
       <h2 className="text-xl font-semibold text-gray-700">
@@ -73,15 +105,62 @@ export function DocumentPanel({
             </div>
           ) : report ? (
             <div className="prose prose-gray max-w-none">
-              <div className="mb-4 text-sm text-gray-500">
-                Creato: {new Date(report.createdAt).toLocaleDateString()} |
-                Modificato: {new Date(report.updatedAt).toLocaleDateString()}
+              <div className="mb-4 flex justify-between items-center">
+                <div className="text-sm text-gray-500">
+                  Creato: {new Date(report.createdAt).toLocaleDateString()} |
+                  Modificato: {new Date(report.updatedAt).toLocaleDateString()}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={isEditing ? handleSaveClick : handleEditClick}
+                  disabled={updateReportMutation.isPending}
+                  className="ml-2"
+                >
+                  {isEditing ? (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      {updateReportMutation.isPending
+                        ? "Salvataggio..."
+                        : "Salva"}
+                    </>
+                  ) : (
+                    <>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Modifica
+                    </>
+                  )}
+                </Button>
               </div>
               <div className="text-lg font-semibold text-gray-900 mb-4">
                 {report.docName}
               </div>
-              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                {report.content}
+              <div className="relative">
+                {isEditing ? (
+                  <div className="absolute inset-0">
+                    <textarea
+                      value={editedContent}
+                      onChange={handleContentChange}
+                      className="w-full h-full p-0 border-0 font-mono text-sm leading-relaxed resize-none focus:ring-0 focus:outline-none bg-transparent"
+                      style={{
+                        whiteSpace: "pre-wrap",
+                        minHeight: "200px",
+                        lineHeight: "1.6",
+                        fontFamily: "inherit",
+                        fontSize: "0.875rem",
+                      }}
+                      autoFocus
+                    />
+                  </div>
+                ) : null}
+                <div
+                  className={`whitespace-pre-wrap font-mono text-sm leading-relaxed min-h-[200px] ${
+                    isEditing ? "invisible" : ""
+                  }`}
+                  style={{ whiteSpace: "pre-wrap" }}
+                >
+                  {report.content}
+                </div>
               </div>
             </div>
           ) : (

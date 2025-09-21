@@ -132,6 +132,7 @@ export async function PUT(
     const { url: newBlobUrl } = await put(blobFileName, content, { 
       access: 'public',
       addRandomSuffix: false, // Important to overwrite the same file
+      allowOverwrite: true,
     });
 
     // Update the report's updatedAt timestamp and blob URL in the database
