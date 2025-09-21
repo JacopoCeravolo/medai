@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type ReportType = "REFERTO" | "NOTA" | "CHIRURGIA";
+export type ReportType = "REFERTO" | "NOTA" | "ESAME";
 
 export interface Report {
   id: string;

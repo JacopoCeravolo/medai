@@ -11,7 +11,7 @@ import {
 } from "@/lib/services/reportService";
 import { setIsAiGenerating } from "@/lib/store/uiSlice";
 
-type ReportType = "REFERTO" | "NOTA" | "CHIRURGIA";
+type ReportType = "REFERTO" | "NOTA" | "ESAME";
 
 interface EditPanelProps {
   isNewDocument?: boolean;
@@ -163,11 +163,11 @@ export function EditPanel({
                   Nota
                 </Button>
                 <Button
-                  variant={reportType === "CHIRURGIA" ? "default" : "outline"}
-                  onClick={() => setReportType("CHIRURGIA")}
+                  variant={reportType === "ESAME" ? "default" : "outline"}
+                  onClick={() => setReportType("ESAME")}
                   className="flex-1"
                 >
-                  Chirurgia
+                  Esame
                 </Button>
               </div>
             </div>

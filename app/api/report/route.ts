@@ -67,6 +67,59 @@ export async function POST(request: NextRequest) {
         // Continue with original content if AI generation fails
       }
     }
+    if (reportType === "NOTA") {
+      try {
+        // Get prompt template from Langfuse
+        const promptTemplate = await getPromptTemplate("generazione-nota", {
+          patient_name: docName,
+          patient_info: informazioni,
+          notes: note,
+          date: new Date().toISOString(),
+        });
+
+        // Generate content using Gemini
+        const generatedContent = await generateReportContent(
+          promptTemplate.messages.length > 0 
+            ? promptTemplate.messages 
+            : JSON.stringify(promptTemplate)
+        );
+
+        // TODO: Add logging back when logGeneration is implemented
+
+        finalContent = generatedContent;
+      } catch (aiError) {
+        console.error("AI generation failed, using original content:", aiError);
+        // Continue with original content if AI generation fails
+      }
+    }
+
+    if (reportType === "ESAME") {
+      try {
+        // Get prompt template from Langfuse
+        const promptTemplate = await getPromptTemplate("generazione-esame", {
+          patient_name: docName,
+          patient_info: informazioni,
+          notes: note,
+          date: new Date().toISOString(),
+        });
+
+        // Generate content using Gemini
+        const generatedContent = await generateReportContent(
+          promptTemplate.messages.length > 0 
+            ? promptTemplate.messages 
+            : JSON.stringify(promptTemplate)
+        );
+
+        // TODO: Add logging back when logGeneration is implemented
+
+        finalContent = generatedContent;
+      } catch (aiError) {
+        console.error("AI generation failed, using original content:", aiError);
+        // Continue with original content if AI generation fails
+      }
+    }
+
+    // TODO: fail if no report matches
 
     // Store content in Vercel Blob and wait for it to be fully available
     const blobFileName = `reports/${decoded?.userId}/${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;
