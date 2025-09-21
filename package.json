@@ -12,6 +12,11 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@langfuse/client": "^4.2.0",
+    "@langfuse/otel": "^4.2.0",
+    "@langfuse/tracing": "^4.2.0",
+    "@opentelemetry/sdk-node": "^0.205.0",
     "@prisma/client": "^6.16.2",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -26,6 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
+    "langfuse": "^3.22.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
     "prisma": "^6.16.2",

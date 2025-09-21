@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPromptTemplate } from "@/lib/services/langfuseService";
+import { generateReportContent } from "@/lib/services/geminiService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,9 +40,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate AI content if reportType is REFERTO
+    let finalContent = content;
+    if (reportType === "REFERTO") {
+      try {
+        // Get prompt template from Langfuse
+        const promptTemplate = await getPromptTemplate("generazione-referto", {
+          patient_info: informazioni,
+          notes: note
+        });
+
+        // Generate content using Gemini
+        const generatedContent = await generateReportContent(
+          informazioni,
+          note,
+          promptTemplate
+        );
+
+        // TODO: Add logging back when logGeneration is implemented
+
+        finalContent = generatedContent;
+      } catch (aiError) {
+        console.error("AI generation failed, using original content:", aiError);
+        // Continue with original content if AI generation fails
+      }
+    }
+
     // Store content in Vercel Blob and wait for it to be fully available
     const blobFileName = `reports/${decoded?.userId}/${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;
-    const { url: blobUrl } = await put(blobFileName, content, { 
+    const { url: blobUrl } = await put(blobFileName, finalContent, { 
       access: 'public' 
     });
 

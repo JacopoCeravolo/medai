@@ -31,6 +31,11 @@ const createReport = async (reportData: {
   return response.report;
 };
 
+const updateReportContent = async ({ id, content }: { id: string; content: string }): Promise<{ id: string; blobUrl: string; updatedAt: Date }> => {
+  const response = await api.put(`/api/report/${id}`, { content });
+  return response.report;
+};
+
 const updateReport = async ({ id, ...data }: { id: string; title?: string; content?: string }): Promise<Report> => {
   const response = await api.put(`/api/report/${id}`, data);
   return response.report;
@@ -91,6 +96,20 @@ export const useUpdateReport = () => {
   });
 };
 
+export const useUpdateReportContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateReportContent,
+    onSuccess: (updatedReport, { id }) => {
+      // When the mutation succeeds, invalidate the specific report query to refetch its content
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.report(id) });
+      // Also invalidate the reports list to update the `updatedAt` timestamp
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reports });
+    },
+  });
+};
+
 export const useDeleteReport = () => {
   const queryClient = useQueryClient();
   
@@ -100,7 +119,7 @@ export const useDeleteReport = () => {
       // Remove from reports list cache
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reports });
       // Remove the specific report from cache
-      queryClient.removeQueries({ queryKey: QUERY_KEYS.report(deletedId) });
+      queryClient.removeQueries({ queryKey: QUERY_KEYS.report(deletedId as string) });
     },
   });
 };

@@ -13,12 +13,13 @@ import {
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { initializeAuth } from "@/lib/store/userSlice";
 import { setIsHistoryVisible } from "@/lib/store/uiSlice";
+import { LoadingOverlay } from "@/components/LoadingOverlay/LoadingOverlay";
 
 export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.user);
-  const { isHistoryVisible } = useAppSelector((state) => state.ui);
+  const { isHistoryVisible, isAiGenerating } = useAppSelector((state) => state.ui);
 
   useEffect(() => {
     // Initialize auth from localStorage on app start
@@ -114,6 +115,12 @@ export default function Home() {
           </ResizablePanel>
         </ResizablePanelGroup>
       )}
+      
+      {/* Global Loading Overlay */}
+      <LoadingOverlay 
+        isVisible={isAiGenerating} 
+        message="Generazione referto in corso..."
+      />
     </div>
   );
 }
