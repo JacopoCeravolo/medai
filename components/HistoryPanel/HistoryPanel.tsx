@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, FileText, User } from "lucide-react";
+import { LogOut, FileText, User, PanelLeftClose, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/userSlice";
 import { useReports } from "@/lib/services/reportService";
@@ -20,7 +20,7 @@ export function HistoryPanel({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.user);
-  
+
   // Use React Query instead of Redux for data fetching
   const { data: reports = [], isLoading, error } = useReports();
 
@@ -39,6 +39,26 @@ export function HistoryPanel({
       <div className="p-4 border-b bg-gray-50">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">History</h2>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleHistory}
+                className="h-8 w-8 p-0"
+              >
+                <PanelLeftClose className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNewDocument}
+                className="h-8 w-8 p-0"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -71,22 +91,26 @@ export function HistoryPanel({
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <FileText 
+                    <FileText
                       className={`h-4 w-4 mt-0.5 ${
-                        isSelected 
-                          ? "text-blue-600" 
+                        isSelected
+                          ? "text-blue-600"
                           : "text-gray-400 group-hover:text-gray-600"
-                      }`} 
+                      }`}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className={`font-medium text-sm truncate ${
-                        isSelected ? "text-blue-900" : "text-gray-900"
-                      }`}>
+                      <div
+                        className={`font-medium text-sm truncate ${
+                          isSelected ? "text-blue-900" : "text-gray-900"
+                        }`}
+                      >
                         {report.title}
                       </div>
-                      <div className={`text-xs mt-1 ${
-                        isSelected ? "text-blue-700" : "text-gray-500"
-                      }`}>
+                      <div
+                        className={`text-xs mt-1 ${
+                          isSelected ? "text-blue-700" : "text-gray-500"
+                        }`}
+                      >
                         {new Date(report.createdAt).toLocaleDateString()}
                       </div>
                     </div>
