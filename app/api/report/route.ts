@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!reportType || !docName || !informazioni || !note) {
+    if (!reportType || !docName || !informazioni) {
       return NextResponse.json(
         { error: "All report fields are required" },
         { status: 400 }
@@ -89,6 +89,8 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to verify blob accessibility after retries');
     }
 
+    console.log("Blob verified successfully");
+
     // Now save report to database - blob content is guaranteed to be available
     const report = await prisma.report.create({
       data: {
@@ -110,6 +112,7 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+    console.log("Report created:", report);
 
     return NextResponse.json({
       success: true,

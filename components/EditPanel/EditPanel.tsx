@@ -58,7 +58,7 @@ export function EditPanel({
   }, [report, isNewDocument]);
 
   const handleSave = async () => {
-    if (!informazioni.trim() && !note.trim()) {
+    if (!informazioni.trim()) {
       alert("Please enter some content before saving.");
       return;
     }
@@ -77,8 +77,8 @@ export function EditPanel({
         content: `${informazioni}\n\n${note}`, // Concatenated for blob
         reportType,
         docName,
-        informazioni,
-        note,
+        informazioni: informazioni || "",
+        note: note || "",
       });
 
       // Clear the form
@@ -99,7 +99,7 @@ export function EditPanel({
   };
 
   const handleEdit = async () => {
-    if (!informazioni.trim() && !note.trim()) {
+    if (!informazioni.trim()) {
       alert("Please enter some content before saving.");
       return;
     }
@@ -117,8 +117,8 @@ export function EditPanel({
         previousContent: report?.content || "",
         reportType: reportType,
         docName: docName,
-        informazioni: informazioni,
-        note: note,
+        informazioni: informazioni || "",
+        note: note || "",
       });
     } catch (error) {
       console.error("Error updating report:", error);
