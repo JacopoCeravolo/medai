@@ -36,8 +36,14 @@ const updateReportContent = async ({ id, content }: { id: string; content: strin
   return response.report;
 };
 
-const updateReport = async ({ id, ...data }: { id: string; title?: string; content?: string }): Promise<Report> => {
-  const response = await api.put(`/api/report/${id}`, data);
+const updateReport = async ({ id, previousContent, ...data }: { id: string; previousContent: string; reportType?: string; docName?: string; informazioni?: string; note?: string }): Promise<Report> => {
+  const response = await api.put(`/api/report/${id}`, { 
+    body: {
+      ...data,
+      regenerate: true,
+      previousContent 
+    }
+  });
   return response.report;
 };
 

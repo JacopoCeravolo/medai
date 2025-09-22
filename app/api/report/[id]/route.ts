@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { put } from "@vercel/blob";
+import { generateReportContentByType } from "../utils";
 
 export async function GET(
   request: NextRequest,
@@ -105,9 +106,10 @@ export async function PUT(
     }
 
     // Parse request body for new content
-    const { content } = await request.json();
-    if (typeof content !== 'string') {
-      return NextResponse.json({ error: "Content must be a string" }, { status: 400 });
+    const { body } = await request.json();
+
+    if (!body) {
+      return NextResponse.json({ error: "Content must be provided" }, { status: 400 });
     }
 
     // Find the original report to get the blob URL
@@ -128,8 +130,31 @@ export async function PUT(
         return NextResponse.json({ error: "Invalid blob URL" }, { status: 500 });
     }
 
+    const previousContent = await fetch(originalReport.blobUrl).then((res) => res.text());
+
+    let newContent = previousContent;
+
+    if (body.regenerate) {
+
+      newContent = await generateReportContentByType({
+        reportType: body.reportType,
+        docName: body.docName,
+        informazioni: body.informazioni,
+        note: body.note,
+        content: previousContent,
+        previousContent: body.previousContent,
+      });
+      
+    } else {
+      if (typeof body.content !== 'string') {
+        return NextResponse.json({ error: "Content must be a string" }, { status: 400 });
+      }
+      newContent = body.content;
+    }
+
+
     // Overwrite the blob with the new content
-    const { url: newBlobUrl } = await put(blobFileName, content, { 
+    const { url: newBlobUrl } = await put(blobFileName, newContent, { 
       access: 'public',
       addRandomSuffix: false, // Important to overwrite the same file
       allowOverwrite: true,
@@ -141,6 +166,10 @@ export async function PUT(
       data: {
         blobUrl: newBlobUrl, // The URL might change slightly, so update it
         updatedAt: new Date(),
+        reportType: body.regenerate ? body.reportType : originalReport.reportType,
+        docName: body.regenerate ? body.docName : originalReport.docName,
+        informazioni: body.regenerate ? body.informazioni : originalReport.informazioni,
+        note: body.regenerate ? body.note : originalReport.note,
       },
     });
 
@@ -152,7 +181,7 @@ export async function PUT(
         updatedAt: updatedReport.updatedAt,
       },
     });
-
+    
   } catch (error) {
     console.error("Error updating report:", error);
     return NextResponse.json(

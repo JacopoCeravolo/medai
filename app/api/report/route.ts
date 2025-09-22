@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 import { verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { put } from "@vercel/blob";
+import { generateReportContentByType } from "./utils";
 import { getPromptTemplate } from "@/lib/services/langfuseService";
 import { generateReportContent } from "@/lib/services/geminiService";
 
@@ -40,86 +41,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate AI content if reportType is REFERTO
-    let finalContent = content;
-    if (reportType === "REFERTO") {
-      try {
-        // Get prompt template from Langfuse
-        const promptTemplate = await getPromptTemplate("generazione-referto", {
-          patient_name: docName,
-          patient_info: informazioni,
-          notes: note,
-          date: new Date().toISOString(),
-        });
-
-        // Generate content using Gemini
-        const generatedContent = await generateReportContent(
-          promptTemplate.messages.length > 0 
-            ? promptTemplate.messages 
-            : JSON.stringify(promptTemplate)
-        );
-
-        // TODO: Add logging back when logGeneration is implemented
-
-        finalContent = generatedContent;
-      } catch (aiError) {
-        console.error("AI generation failed, using original content:", aiError);
-        // Continue with original content if AI generation fails
-      }
-    }
-    if (reportType === "NOTA") {
-      try {
-        // Get prompt template from Langfuse
-        const promptTemplate = await getPromptTemplate("generazione-nota", {
-          patient_name: docName,
-          patient_info: informazioni,
-          notes: note,
-          date: new Date().toISOString(),
-        });
-
-        // Generate content using Gemini
-        const generatedContent = await generateReportContent(
-          promptTemplate.messages.length > 0 
-            ? promptTemplate.messages 
-            : JSON.stringify(promptTemplate)
-        );
-
-        // TODO: Add logging back when logGeneration is implemented
-
-        finalContent = generatedContent;
-      } catch (aiError) {
-        console.error("AI generation failed, using original content:", aiError);
-        // Continue with original content if AI generation fails
-      }
-    }
-
-    if (reportType === "ESAME") {
-      try {
-        // Get prompt template from Langfuse
-        const promptTemplate = await getPromptTemplate("generazione-esame", {
-          patient_name: docName,
-          patient_info: informazioni,
-          notes: note,
-          date: new Date().toISOString(),
-        });
-
-        // Generate content using Gemini
-        const generatedContent = await generateReportContent(
-          promptTemplate.messages.length > 0 
-            ? promptTemplate.messages 
-            : JSON.stringify(promptTemplate)
-        );
-
-        // TODO: Add logging back when logGeneration is implemented
-
-        finalContent = generatedContent;
-      } catch (aiError) {
-        console.error("AI generation failed, using original content:", aiError);
-        // Continue with original content if AI generation fails
-      }
-    }
-
-    // TODO: fail if no report matches
+    // Generate AI content based on report type
+    const finalContent = await generateReportContentByType({
+      reportType,
+      docName,
+      informazioni,
+      note,
+      content,
+    });
 
     // Store content in Vercel Blob and wait for it to be fully available
     const blobFileName = `reports/${decoded?.userId}/${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;
