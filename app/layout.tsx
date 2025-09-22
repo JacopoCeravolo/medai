@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Document Editor",
+  title: "MedAI",
   description: "A modern document editor with authentication",
 };
 
