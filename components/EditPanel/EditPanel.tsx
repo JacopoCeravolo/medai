@@ -124,7 +124,7 @@ export function EditPanel({
   }; */
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white overflow-y-auto">
       {/* Header */}
       <div
         className={`p-4 border-b h-20 flex items-center ${
@@ -141,7 +141,7 @@ export function EditPanel({
             <div className="text-lg text-gray-600">Caricamento...</div>
           </div>
         ) : (
-          <div className="flex-1 p-4 space-y-4">
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto">
             {/* Section 1: Report Type Buttons */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">
