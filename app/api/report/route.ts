@@ -24,31 +24,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const { title, content, reportType, docName, informazioni, note } = await request.json();
+    const { title, reportType, docName, informazioni, note } = await request.json();
 
     // Validate input
-    if (!title || !content || content.trim().length === 0) {
+    if (!title || !reportType || informazioni.trim().length === 0) {
       return NextResponse.json(
         { error: "Title and content are required" },
         { status: 400 }
       );
     }
 
-    if (!reportType || !docName || !informazioni) {
-      return NextResponse.json(
-        { error: "All report fields are required" },
-        { status: 400 }
-      );
-    }
-
     // Generate AI content based on report type
-    const finalContent = await generateReportContentByType({
+    let finalContent = "";
+    try {
+      finalContent = await generateReportContentByType({
       reportType,
       docName,
       informazioni,
       note,
-      content,
     });
+    } catch (error) {
+      console.error("AI generation failed, using original content:", error);
+      return NextResponse.json(
+        { error: "Modello non disponibile, riprovare fra qualche secondo" },
+        { status: 500 }
+      );
+    }
 
     // Store content in Vercel Blob and wait for it to be fully available
     const blobFileName = `reports/${decoded?.userId}/${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;

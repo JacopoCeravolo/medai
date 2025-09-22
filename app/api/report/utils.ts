@@ -6,7 +6,6 @@ type GenerateReportContentParams = {
   docName: string;
   informazioni: string;
   note: string;
-  content: string;
   previousContent?: string;
 };
 
@@ -15,7 +14,6 @@ export async function generateReportContentByType({
   docName,
   informazioni,
   note,
-  content,
   previousContent = "",
 }: GenerateReportContentParams): Promise<string> {
   if (reportType === "REFERTO") {
@@ -40,7 +38,7 @@ export async function generateReportContentByType({
       return generatedContent;
     } catch (aiError) {
       console.error("AI generation failed, using original content:", aiError);
-      return content;
+      throw aiError;
     }
   }
   
@@ -66,7 +64,7 @@ export async function generateReportContentByType({
       return generatedContent;
     } catch (aiError) {
       console.error("AI generation failed, using original content:", aiError);
-      return content;
+      throw aiError;
     }
   }
   
@@ -92,10 +90,10 @@ export async function generateReportContentByType({
       return generatedContent;
     } catch (aiError) {
       console.error("AI generation failed, using original content:", aiError);
-      return content;
+      throw aiError;
     }
   }
   
   // If no matching report type, return the original content
-  return content;
+  return previousContent;
 }

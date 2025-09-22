@@ -21,7 +21,6 @@ const fetchReport = async (id: string): Promise<Report> => {
 
 const createReport = async (reportData: { 
   title: string; 
-  content: string;
   reportType: string;
   docName: string;
   informazioni: string;

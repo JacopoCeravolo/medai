@@ -73,8 +73,8 @@ export function EditPanel({
       //dispatch(setIsAiGenerating(true));
 
       const result = await createReportMutation.mutateAsync({
-        title: docName || "Untitled Report",
-        content: `${informazioni}\n\n${note}`, // Concatenated for blob
+        title: docName || "Senza Titolo",
+        //content: `${informazioni}\n\n${note}`, // Concatenated for blob
         reportType,
         docName,
         informazioni: informazioni || "",

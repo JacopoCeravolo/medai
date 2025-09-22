@@ -141,7 +141,6 @@ export async function PUT(
         docName: body.docName,
         informazioni: body.informazioni,
         note: body.note,
-        content: previousContent,
         previousContent: body.previousContent,
       });
       
