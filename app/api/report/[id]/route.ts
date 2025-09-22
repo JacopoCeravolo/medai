@@ -160,6 +160,47 @@ export async function PUT(
       allowOverwrite: true,
     });
 
+    // Function to verify the content hash matches what we expect
+    const verifyContentMatch = async (expectedContent: string, blobUrl: string, retries = 5, delay = 200): Promise<boolean> => {
+      try {
+        const response = await fetch(blobUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const actualContent = await response.text();
+        const expectedHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(expectedContent))
+          .then(hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''));
+        
+        const actualHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(actualContent))
+          .then(hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''));
+
+        console.log('Content verification - Expected hash:', expectedHash);
+        console.log('Content verification - Actual hash:', actualHash);
+        
+        if (expectedHash === actualHash) {
+          return true;
+        }
+        
+        throw new Error('Content hash mismatch');
+      } catch (error) {
+        if (retries === 0) {
+          console.error('Failed to verify content after retries:', error);
+          return false;
+        }
+        
+        console.log(`Retrying content verification (${retries} attempts left)...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return verifyContentMatch(expectedContent, blobUrl, retries - 1, delay * 2);
+      }
+    };
+
+    // Verify the content was saved correctly
+    const isContentVerified = await verifyContentMatch(newContent, newBlobUrl);
+    if (!isContentVerified) {
+      throw new Error('Failed to verify content after multiple attempts');
+    }
+
     // Update the report's updatedAt timestamp and blob URL in the database
     const updatedReport = await prisma.report.update({
       where: { id },

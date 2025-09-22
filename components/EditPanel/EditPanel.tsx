@@ -70,7 +70,7 @@ export function EditPanel({
 
     try {
       // Show loading overlay for AI generation
-      dispatch(setIsAiGenerating(true));
+      //dispatch(setIsAiGenerating(true));
 
       const result = await createReportMutation.mutateAsync({
         title: docName || "Untitled Report",
@@ -94,7 +94,7 @@ export function EditPanel({
       alert("Error saving report. Please try again.");
     } finally {
       // Hide loading overlay
-      dispatch(setIsAiGenerating(false));
+      //dispatch(setIsAiGenerating(false));
     }
   };
 
@@ -110,7 +110,7 @@ export function EditPanel({
     }
 
     try {
-      dispatch(setIsAiGenerating(true));
+      //dispatch(setIsAiGenerating(true));
 
       await updateReportMutation.mutateAsync({
         id: currentReportId || "",
@@ -125,7 +125,7 @@ export function EditPanel({
       throw error; // Re-throw to handle in the UI if needed
     } finally {
       // Hide loading overlay
-      dispatch(setIsAiGenerating(false));
+      //dispatch(setIsAiGenerating(false));
     }
   };
 
@@ -233,11 +233,15 @@ export function EditPanel({
             <div className="pt-2">
               <Button
                 onClick={isNewDocument ? handleSave : handleEdit}
-                disabled={createReportMutation.isPending}
+                disabled={
+                  createReportMutation.isPending ||
+                  updateReportMutation.isPending
+                }
                 className="w-full bg-black text-white hover:bg-gray-800 disabled:opacity-50"
               >
-                {createReportMutation.isPending
-                  ? "Salvando..."
+                {createReportMutation.isPending ||
+                updateReportMutation.isPending
+                  ? "Generando..."
                   : isNewDocument
                   ? "Genera"
                   : "Genera Nuovamente"}

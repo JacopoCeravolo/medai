@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Verify blob is accessible before proceeding with database save
     // This ensures the content is available when React Query refetches
-    const verifyBlob = async (url: string, retries = 3, delay = 100): Promise<boolean> => {
+    const verifyBlob = async (url: string, retries = 5, delay = 200): Promise<boolean> => {
       try {
         const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) {

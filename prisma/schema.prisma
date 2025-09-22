@@ -24,7 +24,7 @@ model User {
 enum ReportType {
   REFERTO
   NOTA
-  CHIRURGIA
+  ESAME
 }
 
 model Report {
