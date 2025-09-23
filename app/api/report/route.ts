@@ -92,6 +92,14 @@ export async function POST(request: NextRequest) {
 
     console.log("Blob verified successfully");
 
+    console.log("Saving report to database...");
+    console.log("Title:", title);
+    console.log("Report type:", reportType);
+    console.log("Doc name:", docName);
+    console.log("Informazioni:", informazioni);
+    console.log("Note:", note);
+    console.log("User ID:", decoded?.userId);
+
     // Now save report to database - blob content is guaranteed to be available
     const report = await prisma.report.create({
       data: {
