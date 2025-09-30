@@ -6,6 +6,7 @@ import { auth } from "@/app/(auth)/auth";
 import { DataStreamHandler } from "@/components/data-stream-handler";
 /* import { getDocumentsByUserId, getMessagesByChatId } from "@/lib/db/queries"; */
 import { convertToUIMessages } from "@/lib/utils";
+import { InputPanel } from "@/components/input-panel";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -73,5 +74,19 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     </>
   ); */
 
-  return <>{id}</>;
+  return (
+    <>
+      <InputPanel />
+      {/* <Chat
+          autoResume={false}
+          id={id}
+          initialChatModel={modelIdFromCookie.value}
+          initialMessages={[]}
+          initialVisibilityType="private"
+          isReadonly={false}
+          key={id}
+        /> */}
+      {/* <DataStreamHandler /> */}
+    </>
+  );
 }
